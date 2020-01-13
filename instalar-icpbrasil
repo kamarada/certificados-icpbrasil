@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Baseado em: https://thomas-leister.de/en/how-to-import-ca-root-certificate/
+
+instalar_certificado() {
+    certutil -A -n "$1" -t "TCu,Cu,Tu" -i $2 -d $3 >/dev/null 2>&1
+}
+
+NOME_DE_USUARIO=$(whoami)
+
+# Cria o banco de dados de certificados do Chrome/Chromium, caso nao exista
+mkdir -p /home/$NOME_DE_USUARIO/.pki/nssdb
+if [[ ! -f /home/$NOME_DE_USUARIO/.pki/nssdb/cert9.db ]]
+then
+    certutil -N -d /home/$NOME_DE_USUARIO/.pki/nssdb --empty-password
+fi
+
+PASTA_CERTIFICADOS=/usr/share/icpbrasil
+
+# Lista bancos de dados no formato antigo (Berkeley DB, cert8.db)
+DB8=$(find /home/$NOME_DE_USUARIO/ -name "cert8.db")
+
+# Lista bancos de dados no formato novo (SQLite, cert9.db)
+DB9=$(find /home/$NOME_DE_USUARIO/ -name "cert9.db")
+
+echo "Bancos de dados de certificados detectados:"
+for DB in $DB8 ; do echo "- $DB" ; done
+for DB in $DB9 ; do echo "- $DB" ; done
+
+# Instala todos os certificados das ACs da ICP-Brasil
+for CERTIFICADO in $PASTA_CERTIFICADOS/*.crt
+do
+    SUBJECT=$(openssl x509 -text -noout -in $CERTIFICADO | grep 'Subject:')
+    NOME_CERTIFICADO=${SUBJECT#*CN = }
+    echo "Instalando o certificado $NOME_CERTIFICADO"
+
+    for DB in $DB8
+    do
+        echo "- $DB"
+        PASTA_DB=$(dirname ${DB})
+        instalar_certificado "$NOME_CERTIFICADO" $CERTIFICADO dbm:$PASTA_DB
+    done
+
+    for DB in $DB9
+    do
+        echo "- $DB"
+        PASTA_DB=$(dirname ${DB})
+        instalar_certificado "$NOME_CERTIFICADO" $CERTIFICADO sql:$PASTA_DB
+    done
+done
+
+exit 0
+
