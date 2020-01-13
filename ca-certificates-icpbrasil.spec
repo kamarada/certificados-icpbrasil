@@ -1,16 +1,13 @@
 Name:           ca-certificates-icpbrasil
 Version:        2020.01.09
-Release:        1
+Release:        2
+# Arquivos baixados em: https://www.iti.gov.br/repositorio/84-repositorio/489-certificados-das-acs-da-icp-brasil-arquivo-unico-compactado
+# Atualizados em: 09 de janeiro de 2020
 Summary:        Certificados das ACs da ICP-Brasil
 License:        GPL-2.0+
 Group:          Productivity/Networking/Security
-Url:            https://www.iti.gov.br/repositorio/repositorio-ac-raiz
-Source0:        ACcompactado.zip
-Source1:        hashsha512.txt
-# Arquivos baixados em: https://www.iti.gov.br/repositorio/84-repositorio/489-certificados-das-acs-da-icp-brasil-arquivo-unico-compactado
-# Atualizados em: 09 de janeiro de 2020
-Source2:        instalar-icpbrasil
-Source3:        icpbrasil.sh
+Url:            https://github.com/kamarada/certificados-icpbrasil/
+Source:         https://github.com/kamarada/certificados-icpbrasil/archive/15.1-dev.tar.gz#/certificados-icpbrasil.tar.gz
 
 BuildArch:      noarch
 BuildRequires:  unzip
@@ -47,9 +44,9 @@ instalar os certificados em todos os navegadores a nível de sistema).
 
 
 %prep
-cd %{_sourcedir}
-sha512sum -c %{SOURCE1}
-%setup -c
+%setup -q -n certificados-icpbrasil
+sha512sum -c hashsha512.txt
+unzip ACcompactado.zip
 
 
 %build
@@ -66,9 +63,9 @@ do
 done
 
 mkdir -p %{buildroot}%{_bindir}/
-install -D -m 555 %{SOURCE2} %{buildroot}%{_bindir}/
+install -D -m 555 instalar-icpbrasil %{buildroot}%{_bindir}/
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d/
-install -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/profile.d/
+install -D -m 644 icpbrasil.sh %{buildroot}%{_sysconfdir}/profile.d/
 
 
 %post
