@@ -1,6 +1,6 @@
 Name:           ca-certificates-icpbrasil
 Version:        2020.01.09
-Release:        2
+Release:        3
 # Arquivos baixados em: https://www.iti.gov.br/repositorio/84-repositorio/489-certificados-das-acs-da-icp-brasil-arquivo-unico-compactado
 # Atualizados em: 09 de janeiro de 2020
 Summary:        Certificados das ACs da ICP-Brasil
@@ -25,6 +25,10 @@ Este pacote contém todos os certificados das ACs da ICP-Brasil.
 Para instalar os certificados no seu perfil de usuário, execute o comando:
 
 $ instalar-icpbrasil
+
+Para mais informações sobre esse comando, execute:
+
+$ instalar-icpbrasil --ajuda
 
 Esse script suporta:
 

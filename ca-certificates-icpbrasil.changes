@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
-Mon Jan 13 21:00:00 UTC 2020 - Antônio Vinícius Menezes Medeiros <vinyanalista@gmail.com> - 2020.01.09
+Wed Aug  5 02:00:00 UTC 2020 - Antônio Vinícius Menezes Medeiros <linuxkamarada@gmail.com>
+
+- Prevenção de execução para o usuário root
+- Adição de mensagens informando o início e o fim da instalação
+- Instalação silenciosa por padrão (com opção de exibir detalhes)
+
+-------------------------------------------------------------------
+Mon Jan 13 21:00:00 UTC 2020 - Antônio Vinícius Menezes Medeiros <linuxkamarada@gmail.com> - 2020.01.09
 
 - Primeira versão

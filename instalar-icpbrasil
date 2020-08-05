@@ -2,9 +2,57 @@
 
 # Baseado em: https://thomas-leister.de/en/how-to-import-ca-root-certificate/
 
+EXECUTAR_COMO_ROOT=false
+EXIBIR_DETALHES=false
+
+ajuda() {
+    ESTE_SCRIPT=`basename "$0"`
+    echo -e "Instalador dos certificados da ICP-Brasil\n"
+    echo -e "Como usar: $ESTE_SCRIPT (OPÇÕES)*\n"
+    echo -e "Em que OPÇÕES podem ser uma ou mais das seguintes:\n"
+    echo -e "--ajuda\t\tExibe este texto"
+    echo -e "--detalhes\tFornece informações detalhadas sobre o andamento da instalação"
+    echo -e "--root\t\tAutoriza instalar os certificados para o usuário root"
+}
+
+echo_detalhado() {
+    $EXIBIR_DETALHES && echo "$1"
+}
+
 instalar_certificado() {
     certutil -A -n "$1" -t "TCu,Cu,Tu" -i $2 -d $3 >/dev/null 2>&1
 }
+
+while [[ $# -gt 0 ]]; do
+    arg="$1"
+    case $arg in
+        --ajuda|--help)
+            ajuda
+            exit 0
+            ;;
+        --detalhes)
+            EXIBIR_DETALHES=true
+            ;;
+        --root)
+            EXECUTAR_COMO_ROOT=true
+            ;;
+        *)
+            echo -e "Opção não reconhecida: $arg\n"
+            ajuda
+            exit 0
+            ;;
+    esac
+    shift
+done
+
+if [[ $UID -eq 0 ]] ; then
+    if ! $EXECUTAR_COMO_ROOT ; then
+        echo_detalhado "Em tese, não é necessário instalar os certificados da ICP-Brasil para o usuário root. Se você sabe o que está fazendo, adicione a opção --root."
+        exit 0
+    fi
+fi
+
+echo "Instalando certificados da ICP-Brasil..."
 
 NOME_DE_USUARIO=$(whoami)
 
@@ -23,31 +71,33 @@ DB8=$(find /home/$NOME_DE_USUARIO/ -name "cert8.db")
 # Lista bancos de dados no formato novo (SQLite, cert9.db)
 DB9=$(find /home/$NOME_DE_USUARIO/ -name "cert9.db")
 
-echo "Bancos de dados de certificados detectados:"
-for DB in $DB8 ; do echo "- $DB" ; done
-for DB in $DB9 ; do echo "- $DB" ; done
+echo_detalhado "Bancos de dados de certificados detectados:"
+for DB in $DB8 ; do echo_detalhado "- $DB" ; done
+for DB in $DB9 ; do echo_detalhado "- $DB" ; done
 
 # Instala todos os certificados das ACs da ICP-Brasil
 for CERTIFICADO in $PASTA_CERTIFICADOS/*.crt
 do
     SUBJECT=$(openssl x509 -text -noout -in $CERTIFICADO | grep 'Subject:')
     NOME_CERTIFICADO=${SUBJECT#*CN = }
-    echo "Instalando o certificado $NOME_CERTIFICADO"
+    echo_detalhado "Instalando o certificado $NOME_CERTIFICADO"
 
     for DB in $DB8
     do
-        echo "- $DB"
+        echo_detalhado "- $DB"
         PASTA_DB=$(dirname ${DB})
         instalar_certificado "$NOME_CERTIFICADO" $CERTIFICADO dbm:$PASTA_DB
     done
 
     for DB in $DB9
     do
-        echo "- $DB"
+        echo_detalhado "- $DB"
         PASTA_DB=$(dirname ${DB})
         instalar_certificado "$NOME_CERTIFICADO" $CERTIFICADO sql:$PASTA_DB
     done
 done
+
+echo "Instalação concluída com sucesso!"
 
 exit 0
 
