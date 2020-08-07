@@ -7,7 +7,7 @@ Summary:        Certificados das ACs da ICP-Brasil
 License:        GPL-2.0+
 Group:          Productivity/Networking/Security
 Url:            https://github.com/kamarada/certificados-icpbrasil/
-Source:         https://github.com/kamarada/certificados-icpbrasil/archive/15.2-dev.tar.gz#/certificados-icpbrasil.tar.gz
+Source:         https://github.com/kamarada/certificados-icpbrasil/archive/15.2.tar.gz#/certificados-icpbrasil.tar.gz
 
 BuildArch:      noarch
 BuildRequires:  unzip
